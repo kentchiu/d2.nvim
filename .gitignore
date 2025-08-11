@@ -1,0 +1,9 @@
+*.log
+/.tests
+/build
+/debug
+/doc/tags
+.aider.*
+
+.aider*
+.env
