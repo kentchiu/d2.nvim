@@ -1,0 +1,56 @@
+# Test D2 Diagram
+# 用來測試預覽功能
+
+title: System Architecture {
+  near: top-center
+  shape: text
+  style.font-size: 28
+  style.underline: true
+}
+
+users: Users {
+  shape: person
+  style.fill: "#e1f5fe"
+}
+
+web: Web Server {
+  nginx: Nginx
+  app: Application
+}
+
+services: Backend Services {
+  api: REST API
+  auth: Auth Service
+  worker: Background Jobs
+}
+
+data: Data Layer {
+  postgres: PostgreSQL {
+    shape: cylinder
+    style.fill: "#336791"
+  }
+  redis: Redis Cache {
+    shape: hexagon
+    style.fill: "#dc382d"
+  }
+  s3: Object Storage {
+    shape: stored_data
+    style.fill: "#ff9900"
+  }
+}
+
+# Connections
+users -> web.nginx: HTTPS
+web.nginx -> web.app: proxy
+web.app -> services.api: REST
+services.api -> services.auth: verify
+services.api -> data.postgres: query
+services.api -> data.redis: cache
+services.worker -> data.postgres: process
+services.worker -> data.s3: store files
+
+# Styling
+users.style.font-size: 20
+web.style.fill: "#f0f0f0"
+services.style.fill: "#fff3e0"
+data.style.fill: "#f3e5f5"
