@@ -99,6 +99,10 @@ M.setup = function(opts)
   register_preview_commands()
   register_export_command()
   
+  -- 設置 treesitter
+  local treesitter = require("d2.treesitter")
+  treesitter.setup()
+  
   M._setup_done = true
 end
 

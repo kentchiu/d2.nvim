@@ -69,24 +69,89 @@ So that 我可以更清楚地閱讀和編寫 D2 圖表定義
 
 **Acceptance Criteria:**
 
-- [ ] **AC-01**: 安裝 tree-sitter-d2 parser
+- [x] **AC-01**: 安裝 tree-sitter-d2 parser
   - 使用 ravsii/tree-sitter-d2（支援最新 D2 功能）
   - 透過 nvim-treesitter 安裝管理
   - 自動識別 .d2 檔案類型
 
-- [ ] **AC-02**: 配置 queries 檔案
+- [x] **AC-02**: 配置 queries 檔案
   - 複製 highlights.scm 進行語法高亮
   - 複製 injections.scm 支援內嵌語言
   - 複製 locals.scm 追蹤局部變數
 
-- [ ] **AC-03**: 基本高亮功能
+- [x] **AC-03**: 基本高亮功能
   - 節點、連線、屬性的不同顏色
   - 註解使用 `#` 符號
   - 字串和數值的區分
 
 ---
 
-### STORY-004: 檔案類型設定
+### STORY-004: Tree-sitter Parser 安裝與整合
+
+```
+As a Neovim 用戶
+I want to 自動安裝和配置 tree-sitter-d2 parser
+So that 語法高亮功能可以真正在編輯器中生效
+```
+
+**Acceptance Criteria:**
+
+- [ ] **AC-01**: 自動化 parser 安裝
+  - 檢測 nvim-treesitter 是否已安裝
+  - 自動註冊 d2 parser 配置到 nvim-treesitter
+  - 提供 `:D2InstallParser` 命令觸發安裝
+  - 顯示安裝進度和結果
+
+- [ ] **AC-02**: Parser 驗證機制
+  - 檢查 parser 是否正確安裝（`:D2CheckHealth`）
+  - 驗證 queries 檔案是否在正確位置
+  - 確認 filetype 關聯正確設定
+  - 提供診斷訊息和修復建議
+
+- [ ] **AC-03**: 整合文檔和設置指南
+  - 生成安裝指南文檔
+  - 提供 lazy.nvim/packer 配置範例
+  - 包含常見問題排解步驟
+  - 支援手動和自動安裝方式
+
+**技術註記:**
+- 需要處理 nvim-treesitter 未安裝的情況
+- Parser 編譯可能因系統而異（Windows/Mac/Linux）
+- 考慮提供預編譯的 parser binary 選項
+
+---
+
+### STORY-005: 插件整合優化
+
+```
+As a Neovim 用戶
+I want to 插件能開箱即用，自動處理所有設置
+So that 我只需要安裝插件就能立即使用所有功能
+```
+
+**Acceptance Criteria:**
+
+- [ ] **AC-01**: 智能初始化
+  - 自動檢測並安裝缺少的依賴
+  - 懶載入機制，只在需要時載入模組
+  - 首次使用時自動執行設置引導
+  - 記憶用戶選擇，避免重複詢問
+
+- [ ] **AC-02**: 健康檢查整合
+  - 整合到 `:checkhealth` 系統
+  - 檢查 D2 CLI 是否安裝
+  - 驗證 tree-sitter parser 狀態
+  - 提供一鍵修復選項
+
+- [ ] **AC-03**: 配置範例和模板
+  - 提供完整的 lazy.nvim 配置範例
+  - 支援自定義配置覆蓋預設值
+  - 包含最佳實踐配置建議
+  - 支援專案級別配置檔（.d2.nvim.lua）
+
+---
+
+### STORY-006: 檔案類型設定
 
 ```
 As a Neovim 用戶
@@ -111,9 +176,11 @@ So that 編輯體驗符合 D2 的慣例
   - `<leader>de` 導出圖表
   - `<leader>ds` 停止預覽
 
+---
+
 ## Phase 2: 核心功能完善
 
-### STORY-005: 程式碼格式化
+### STORY-007: 程式碼格式化
 
 ```
 As a Neovim 用戶
@@ -140,7 +207,7 @@ So that 我的圖表定義保持一致的程式碼風格
 
 ---
 
-### STORY-006: 主題切換功能
+### STORY-008: 主題切換功能
 
 ```
 As a Neovim 用戶
@@ -167,7 +234,7 @@ So that 我可以選擇適合不同場景的圖表樣式
 
 ---
 
-### STORY-007: 佈局引擎選擇
+### STORY-009: 佈局引擎選擇
 
 ```
 As a Neovim 用戶
@@ -194,7 +261,7 @@ So that 我可以為不同類型的圖表選擇最佳佈局
 
 ---
 
-### STORY-008: 錯誤診斷整合
+### STORY-010: 錯誤診斷整合
 
 ```
 As a Neovim 用戶
@@ -221,7 +288,7 @@ So that 我可以快速修正問題
 
 ## Phase 3: 進階功能
 
-### STORY-009: 手繪風格切換
+### STORY-011: 手繪風格切換
 
 ```
 As a Neovim 用戶
@@ -243,7 +310,7 @@ So that 我的圖表看起來更加親切和非正式
 
 ---
 
-### STORY-010: Tree-sitter 程式碼折疊
+### STORY-012: Tree-sitter 程式碼折疊
 
 ```
 As a Neovim 用戶
@@ -265,7 +332,7 @@ So that 我可以專注於當前編輯的部分
 
 ---
 
-### STORY-011: 多板塊動畫導出
+### STORY-013: 多板塊動畫導出
 
 ```
 As a Neovim 用戶
@@ -287,7 +354,7 @@ So that 我可以展示漸進式的圖表變化
 
 ---
 
-### STORY-012: 自訂字體支援
+### STORY-014: 自訂字體支援
 
 ```
 As a Neovim 用戶
@@ -310,7 +377,7 @@ So that 圖表符合我的品牌視覺規範
 
 ---
 
-### STORY-013: 圖表縮放控制
+### STORY-015: 圖表縮放控制
 
 ```
 As a Neovim 用戶
