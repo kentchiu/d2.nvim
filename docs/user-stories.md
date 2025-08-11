@@ -86,68 +86,21 @@ So that 我可以更清楚地閱讀和編寫 D2 圖表定義
 
 ---
 
-### STORY-004: Tree-sitter Parser 安裝與整合
+### STORY-004: 健康檢查功能
 
 ```
 As a Neovim 用戶
-I want to 自動安裝和配置 tree-sitter-d2 parser
-So that 語法高亮功能可以真正在編輯器中生效
+I want to 診斷 D2.nvim 的安裝狀態
+So that 我可以快速排除問題
 ```
 
 **Acceptance Criteria:**
 
-- [ ] **AC-01**: 自動化 parser 安裝
-  - 檢測 nvim-treesitter 是否已安裝
-  - 自動註冊 d2 parser 配置到 nvim-treesitter
-  - 提供 `:D2InstallParser` 命令觸發安裝
-  - 顯示安裝進度和結果
-
-- [ ] **AC-02**: Parser 驗證機制
-  - 檢查 parser 是否正確安裝（`:D2CheckHealth`）
-  - 驗證 queries 檔案是否在正確位置
-  - 確認 filetype 關聯正確設定
-  - 提供診斷訊息和修復建議
-
-- [ ] **AC-03**: 整合文檔和設置指南
-  - 生成安裝指南文檔
-  - 提供 lazy.nvim/packer 配置範例
-  - 包含常見問題排解步驟
-  - 支援手動和自動安裝方式
-
-**技術註記:**
-- 需要處理 nvim-treesitter 未安裝的情況
-- Parser 編譯可能因系統而異（Windows/Mac/Linux）
-- 考慮提供預編譯的 parser binary 選項
-
----
-
-### STORY-005: 插件整合優化
-
-```
-As a Neovim 用戶
-I want to 插件能開箱即用，自動處理所有設置
-So that 我只需要安裝插件就能立即使用所有功能
-```
-
-**Acceptance Criteria:**
-
-- [ ] **AC-01**: 智能初始化
-  - 自動檢測並安裝缺少的依賴
-  - 懶載入機制，只在需要時載入模組
-  - 首次使用時自動執行設置引導
-  - 記憶用戶選擇，避免重複詢問
-
-- [ ] **AC-02**: 健康檢查整合
-  - 整合到 `:checkhealth` 系統
-  - 檢查 D2 CLI 是否安裝
-  - 驗證 tree-sitter parser 狀態
-  - 提供一鍵修復選項
-
-- [ ] **AC-03**: 配置範例和模板
-  - 提供完整的 lazy.nvim 配置範例
-  - 支援自定義配置覆蓋預設值
-  - 包含最佳實踐配置建議
-  - 支援專案級別配置檔（.d2.nvim.lua）
+- [x] **AC-01**: 實作 :checkhealth 支援
+  - 檢查 D2 CLI 是否安裝及版本
+  - 檢查 tree-sitter parser 狀態
+  - 檢查瀏覽器開啟工具
+  - 提供清晰的錯誤訊息和解決建議
 
 ---
 
@@ -405,6 +358,7 @@ So that 我可以產生適合不同用途的圖表尺寸
 ## 實現優先級說明
 
 ### 必須依賴 D2 CLI 的功能
+
 - 預覽（watch 模式）
 - 導出（各種格式）
 - 格式化（fmt）
@@ -412,12 +366,14 @@ So that 我可以產生適合不同用途的圖表尺寸
 - 主題和佈局引擎
 
 ### 必須依賴 Tree-sitter 的功能
+
 - 語法高亮
 - 程式碼折疊
 - 智慧縮排
 - 符號導航
 
 ### 不在當前範圍內的功能
+
 - 自動完成（需要 LSP server，D2 尚無官方支援）
 - 智慧重構（需要語意分析）
 - 即時錯誤修正建議（需要更深入的語法理解）
@@ -438,3 +394,4 @@ So that 我可以產生適合不同用途的圖表尺寸
    - 需要處理不同平台的路徑差異
    - 瀏覽器自動開啟在某些環境可能失效
    - 非同步執行需要妥善的錯誤處理
+

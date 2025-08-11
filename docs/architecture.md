@@ -165,24 +165,18 @@ return M
 ### 5. Tree-sitter 整合 (lua/d2/treesitter.lua)
 
 ```lua
--- Tree-sitter 功能整合
+-- Tree-sitter 自動安裝模組
 local M = {}
 
-M.setup_parser = function()
-  -- 設置 tree-sitter-d2 parser
-  -- 配置 queries
+M.setup = function()
+  -- 設定 .d2 檔案的 filetype
+  -- 檢查並自動安裝 d2 parser
 end
 
-M.get_node_at_cursor = function()
-  -- 獲取游標位置的語法節點
-end
-
-M.get_document_symbols = function()
-  -- 獲取文件符號列表（用於導航）
-end
-
-M.fold_expr = function()
-  -- 基於 tree-sitter 的折疊表達式
+M.ensure_d2_installed = function()
+  -- 檢查 d2 parser 是否已安裝
+  -- 如未安裝，自動執行 :TSInstall d2
+  -- 顯示安裝通知
 end
 
 return M
