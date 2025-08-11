@@ -42,17 +42,17 @@ So that 我可以在文件或簡報中使用這些圖表
 
 **Acceptance Criteria:**
 
-- [ ] **AC-01**: 導出為 SVG（預設）
+- [x] **AC-01**: 導出為 SVG（預設）
   - 使用 `d2 file.d2 output.svg` 命令
   - SVG 為預設格式，無需指定
   - 支援 `--bundle` 選項打包所有資源
 
-- [ ] **AC-02**: 導出為 PNG
+- [x] **AC-02**: 導出為 PNG
   - 使用 `d2 file.d2 output.png` 命令
   - 自動根據副檔名判斷格式
   - PNG 導出會自動添加附錄（tooltips 和 links）
 
-- [ ] **AC-03**: 導出指令介面
+- [x] **AC-03**: 導出指令介面
   - 提供 `:D2Export [format]` 指令
   - 預設導出到同目錄，檔名加上時間戳
   - 顯示導出成功訊息和檔案路徑
