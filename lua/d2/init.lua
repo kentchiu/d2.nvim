@@ -41,6 +41,55 @@ local function generate_output_filename(current_file, format)
   return string.format("%s/%s_%s.%s", dir, base, timestamp, format)
 end
 
+-- 註冊配置命令
+local function register_config_commands()
+  local config = require("d2.config")
+  
+  -- D2SetLayout 命令
+  vim.api.nvim_create_user_command("D2SetLayout", function(args)
+    config.set_layout(args.args)
+    vim.notify("D2 layout set to: " .. args.args, vim.log.levels.INFO)
+  end, {
+    desc = "Set D2 layout engine",
+    nargs = 1,
+    complete = function()
+      return {"dagre", "elk", "tala"}
+    end
+  })
+  
+  -- D2ToggleSketch 命令
+  vim.api.nvim_create_user_command("D2ToggleSketch", function()
+    config.toggle_sketch()
+    local status = config.get().sketch and "enabled" or "disabled"
+    vim.notify("D2 sketch mode " .. status, vim.log.levels.INFO)
+  end, {
+    desc = "Toggle D2 sketch mode",
+    nargs = 0
+  })
+  
+  -- D2SetTheme 命令
+  vim.api.nvim_create_user_command("D2SetTheme", function(args)
+    local theme_id = tonumber(args.args)
+    if theme_id and config.set_theme(theme_id) then
+      vim.notify("D2 theme set to: " .. theme_id, vim.log.levels.INFO)
+    else
+      vim.notify("Invalid theme ID (0-300)", vim.log.levels.ERROR)
+    end
+  end, {
+    desc = "Set D2 theme",
+    nargs = 1
+  })
+  
+  -- D2ShowConfig 命令
+  vim.api.nvim_create_user_command("D2ShowConfig", function()
+    local info = config.show()
+    vim.notify(info, vim.log.levels.INFO)
+  end, {
+    desc = "Show current D2 configuration",
+    nargs = 0
+  })
+end
+
 -- 註冊導出命令
 local function register_export_command()
   vim.api.nvim_create_user_command("D2Export", function(args)
@@ -66,6 +115,13 @@ local function register_export_command()
     local cmd = {"d2", current_file, output_file}
     if bundle then
       table.insert(cmd, "--bundle")
+    end
+    
+    -- 加入配置參數
+    local config = require("d2.config")
+    local config_args = config.get_cli_args()
+    for _, arg in ipairs(config_args) do
+      table.insert(cmd, arg)
     end
     
     vim.fn.jobstart(cmd, {
@@ -95,9 +151,14 @@ M.setup = function(opts)
   
   opts = opts or {}
   
+  -- 設置配置
+  local config = require("d2.config")
+  config.setup(opts)
+  
   -- 註冊所有命令
   register_preview_commands()
   register_export_command()
+  register_config_commands()
   
   -- 設置 treesitter
   local treesitter = require("d2.treesitter")

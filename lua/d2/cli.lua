@@ -20,6 +20,7 @@ end
 -- Cycle 3: 實作 watch 模式
 M.start_preview = function(file_path, opts)
   opts = opts or {}
+  local config = require("d2.config")
   
   -- 建構 d2 命令
   local cmd = {
@@ -33,6 +34,12 @@ M.start_preview = function(file_path, opts)
   if opts.browser and opts.browser ~= "" then
     table.insert(cmd, "--browser")
     table.insert(cmd, opts.browser)
+  end
+  
+  -- 加入配置參數
+  local config_args = config.get_cli_args()
+  for _, arg in ipairs(config_args) do
+    table.insert(cmd, arg)
   end
   
   -- 使用 jobstart 啟動非同步進程

@@ -97,3 +97,44 @@ So that 我可以快速排除問題
   - 檢查 tree-sitter parser 狀態
   - 檢查瀏覽器開啟工具
   - 提供清晰的錯誤訊息和解決建議
+
+---
+
+### STORY-005: 配置管理功能
+
+```
+As a Neovim 用戶
+I want to 配置 D2 CLI 的偏好參數
+So that 我可以根據需求自訂圖表的預設樣式和行為
+```
+
+**Acceptance Criteria:**
+
+- [x] **AC-01**: 配置圖表佈局引擎
+  - 支援配置預設 layout（dagre, elk, tala 等）
+  - 透過 `setup({ layout = "dagre" })` 設定（預設值）
+  - 在所有 D2 命令中使用 `--layout` 參數
+  - 提供 `:D2SetLayout [layout]` 臨時切換
+
+- [x] **AC-02**: 配置圖表風格
+  - 支援 sketch 模式開關（手繪風格）
+  - 透過 `setup({ sketch = false })` 設定（預設值）
+  - 在預覽和導出時使用 `--sketch` 參數
+  - 提供 `:D2ToggleSketch` 切換手繪風格
+
+- [x] **AC-03**: 配置主題選擇
+  - 支援內建主題配置（0-300+ 主題）
+  - 透過 `setup({ theme = 101 })` 設定
+  - 使用 `--theme` 參數套用主題
+  - 提供 `:D2SetTheme [id]` 切換主題
+
+- [x] **AC-04**: 配置進階選項
+  - 支援 pad 設定（圖表邊距）
+  - 支援 dark-theme 設定（深色主題ID）
+  - 支援 force-appendix 設定（強制附錄）
+  - 支援 animate-interval 設定（動畫間隔）
+
+- [x] **AC-05**: 使用者級配置
+  - 配置儲存於使用者的 Neovim 設定中
+  - 透過 `require('d2').setup({...})` 進行配置
+  - 提供 `:D2ShowConfig` 顯示當前配置
