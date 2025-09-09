@@ -72,7 +72,7 @@ local function register_config_commands()
     if theme_id and config.set_theme(theme_id) then
       vim.notify("D2 theme set to: " .. theme_id, vim.log.levels.INFO)
     else
-      vim.notify("Invalid theme ID (0-300)", vim.log.levels.ERROR)
+      vim.notify("Invalid theme ID (must be a number between 0-300)", vim.log.levels.ERROR)
     end
   end, {
     desc = "Set D2 theme",
@@ -89,73 +89,88 @@ local function register_config_commands()
   })
 end
 
+-- 解析導出參數
+local function parse_export_args(args_str)
+  local format = "svg"
+  local bundle = false
+  
+  if args_str and args_str ~= "" then
+    if args_str:match("bundle") then
+      bundle = true
+    end
+    if args_str:match("png") then
+      format = "png"
+    end
+  end
+  
+  return format, bundle
+end
+
+-- 建構導出命令
+local function build_export_command(current_file, output_file, bundle)
+  local cmd = {"d2", current_file, output_file}
+  
+  if bundle then
+    table.insert(cmd, "--bundle")
+  end
+  
+  -- 加入配置參數
+  local config = require("d2.config")
+  local config_args = config.get_cli_args()
+  for _, arg in ipairs(config_args) do
+    table.insert(cmd, arg)
+  end
+  
+  return cmd
+end
+
+-- 執行導出
+local function execute_export(cmd, output_file)
+  vim.fn.jobstart(cmd, {
+    on_exit = function(job_id, exit_code, event)
+      if exit_code == 0 then
+        vim.notify("✅ D2 export completed: " .. output_file, vim.log.levels.INFO)
+      else
+        vim.notify("❌ D2 export failed", vim.log.levels.ERROR)
+      end
+    end
+  })
+end
+
+-- 處理檔案覆蓋確認
+local function handle_file_overwrite(output_file, export_callback)
+  if vim.fn.filereadable(output_file) == 1 then
+    vim.ui.select(
+      {"Yes", "No"},
+      {
+        prompt = string.format("File '%s' already exists. Overwrite?", vim.fn.fnamemodify(output_file, ":t")),
+      },
+      function(choice)
+        if choice == "Yes" then
+          export_callback()
+        else
+          vim.notify("Export cancelled", vim.log.levels.INFO)
+        end
+      end
+    )
+  else
+    export_callback()
+  end
+end
+
 -- 註冊導出命令
 local function register_export_command()
   vim.api.nvim_create_user_command("D2Export", function(args)
-    -- 獲取當前檔案
     local current_file = vim.api.nvim_buf_get_name(0)
-    
-    -- 解析參數
-    local format = "svg"
-    local bundle = false
-    if args.args ~= "" then
-      if args.args:match("bundle") then
-        bundle = true
-      end
-      if args.args:match("png") then
-        format = "png"
-      end
-    end
-    
-    -- 生成輸出檔名
+    local format, bundle = parse_export_args(args.args)
     local output_file = generate_output_filename(current_file, format)
     
-    -- 執行導出的函數
     local function do_export()
-      -- 建構 d2 命令
-      local cmd = {"d2", current_file, output_file}
-      if bundle then
-        table.insert(cmd, "--bundle")
-      end
-      
-      -- 加入配置參數
-      local config = require("d2.config")
-      local config_args = config.get_cli_args()
-      for _, arg in ipairs(config_args) do
-        table.insert(cmd, arg)
-      end
-      
-      vim.fn.jobstart(cmd, {
-        on_exit = function(job_id, exit_code, event)
-          if exit_code == 0 then
-            vim.notify("✅ D2 export completed: " .. output_file, vim.log.levels.INFO)
-          else
-            vim.notify("❌ D2 export failed", vim.log.levels.ERROR)
-          end
-        end
-      })
+      local cmd = build_export_command(current_file, output_file, bundle)
+      execute_export(cmd, output_file)
     end
     
-    -- 檢查檔案是否存在
-    if vim.fn.filereadable(output_file) == 1 then
-      -- 檔案存在，詢問是否覆蓋
-      vim.ui.select(
-        {"Yes", "No"},
-        {
-          prompt = string.format("File '%s' already exists. Overwrite?", vim.fn.fnamemodify(output_file, ":t")),
-        },
-        function(choice)
-          if choice == "Yes" then
-            do_export()
-          else
-            vim.notify("Export cancelled", vim.log.levels.INFO)
-          end
-        end
-      )
-    else
-      -- 檔案不存在，直接導出
-      do_export()
-    end
+    handle_file_overwrite(output_file, do_export)
   end, {
     desc = "Export D2 diagram to SVG/PNG",
     nargs = "?",

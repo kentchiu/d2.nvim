@@ -16,17 +16,17 @@ M.check_binary = function()
   return true, nil
 end
 
--- 啟動 D2 預覽伺服器
--- Cycle 3: 實作 watch 模式
-M.start_preview = function(file_path, opts)
-  opts = opts or {}
+-- 常數定義
+local DEFAULT_PORT = 0
+
+-- 建構預覽命令
+local function build_preview_command(file_path, opts)
   local config = require("d2.config")
   
-  -- 建構 d2 命令
   local cmd = {
     "d2",
     "--watch",
-    "--port", tostring(opts.port or 0),
+    "--port", tostring(opts.port or DEFAULT_PORT),
     file_path
   }
   
@@ -42,14 +42,16 @@ M.start_preview = function(file_path, opts)
     table.insert(cmd, arg)
   end
   
-  -- 使用 jobstart 啟動非同步進程
-  local job_id = vim.fn.jobstart(cmd, {
+  return cmd
+end
+
+-- 創建 job 處理器
+local function create_job_handlers()
+  return {
     on_stdout = function(_, data, _)
-      -- 處理輸出
       if data then
         for _, line in ipairs(data) do
           if line ~= "" then
-            -- 顯示 D2 的輸出（如 URL）
             vim.schedule(function()
               vim.notify("D2: " .. line, vim.log.levels.INFO)
             end)
@@ -58,7 +60,6 @@ M.start_preview = function(file_path, opts)
       end
     end,
     on_stderr = function(_, data, _)
-      -- 處理錯誤輸出
       if data then
         for _, line in ipairs(data) do
           if line ~= "" and not line:match("^go:") then
@@ -86,9 +87,18 @@ M.start_preview = function(file_path, opts)
         end
       end)
     end
-  })
+  }
+end
+
+-- 啟動 D2 預覽伺服器
+-- Cycle 3: 實作 watch 模式
+M.start_preview = function(file_path, opts)
+  opts = opts or {}
   
-  return job_id
+  local cmd = build_preview_command(file_path, opts)
+  local handlers = create_job_handlers()
+  
+  return vim.fn.jobstart(cmd, handlers)
 end
 
 return M

@@ -2,12 +2,18 @@
 
 local M = {}
 
+-- 常數定義
+local THEME_MIN = 0
+local THEME_MAX = 300
+local DEFAULT_PAD = 100
+local DEFAULT_PORT = 0
+
 -- 預設配置
 M.defaults = {
   layout = "elk",
   sketch = true,
-  theme = 0,
-  pad = 100,
+  theme = THEME_MIN,
+  pad = DEFAULT_PAD,
   dark_theme = nil,
   force_appendix = false,
   animate_interval = nil,
@@ -16,10 +22,33 @@ M.defaults = {
 -- 使用者配置
 M.options = {}
 
+-- 確保配置已初始化
+local function ensure_options_initialized()
+  if vim.tbl_isempty(M.options) then
+    M.options = vim.tbl_deep_extend("force", {}, M.defaults)
+  end
+end
+
 -- Setup 函數
 M.setup = function(opts)
   opts = opts or {}
   M.options = vim.tbl_deep_extend("force", M.defaults, opts)
+end
+
+-- 輔助函數：添加 CLI 參數
+local function add_cli_arg(args, flag, value)
+  if value ~= nil then
+    table.insert(args, flag)
+    if type(value) == "boolean" then
+      -- 布林值參數不需要值
+      if not value then
+        -- 如果是 false，不加入參數
+        table.remove(args, #args)
+      end
+    else
+      table.insert(args, tostring(value))
+    end
+  end
 end
 
 -- 取得 CLI 參數
@@ -27,49 +56,16 @@ M.get_cli_args = function()
   local args = {}
 
   -- 確保 options 已初始化
-  if vim.tbl_isempty(M.options) then
-    M.options = M.defaults
-  end
+  ensure_options_initialized()
 
-  -- 加入 layout 參數
-  if M.options.layout then
-    table.insert(args, "--layout")
-    table.insert(args, M.options.layout)
-  end
-
-  -- 加入 sketch 參數
-  if M.options.sketch then
-    table.insert(args, "--sketch")
-  end
-
-  -- 加入 theme 參數
-  if M.options.theme then
-    table.insert(args, "--theme")
-    table.insert(args, tostring(M.options.theme))
-  end
-
-  -- 加入 pad 參數
-  if M.options.pad then
-    table.insert(args, "--pad")
-    table.insert(args, tostring(M.options.pad))
-  end
-
-  -- 加入 dark-theme 參數
-  if M.options.dark_theme then
-    table.insert(args, "--dark-theme")
-    table.insert(args, tostring(M.options.dark_theme))
-  end
-
-  -- 加入 force-appendix 參數
-  if M.options.force_appendix then
-    table.insert(args, "--force-appendix")
-  end
-
-  -- 加入 animate-interval 參數
-  if M.options.animate_interval then
-    table.insert(args, "--animate-interval")
-    table.insert(args, tostring(M.options.animate_interval))
-  end
+  -- 加入所有配置參數
+  add_cli_arg(args, "--layout", M.options.layout)
+  add_cli_arg(args, "--sketch", M.options.sketch)
+  add_cli_arg(args, "--theme", M.options.theme)
+  add_cli_arg(args, "--pad", M.options.pad)
+  add_cli_arg(args, "--dark-theme", M.options.dark_theme)
+  add_cli_arg(args, "--force-appendix", M.options.force_appendix)
+  add_cli_arg(args, "--animate-interval", M.options.animate_interval)
 
   return args
 end
@@ -77,9 +73,7 @@ end
 -- 切換 sketch 模式
 M.toggle_sketch = function()
   -- 確保 options 已初始化
-  if vim.tbl_isempty(M.options) then
-    M.options = vim.tbl_deep_extend("force", {}, M.defaults)
-  end
+  ensure_options_initialized()
 
   M.options.sketch = not M.options.sketch
 end
@@ -87,12 +81,10 @@ end
 -- 設定 theme
 M.set_theme = function(theme_id)
   -- 確保 options 已初始化
-  if vim.tbl_isempty(M.options) then
-    M.options = vim.tbl_deep_extend("force", {}, M.defaults)
-  end
+  ensure_options_initialized()
 
   -- 驗證 theme ID 範圍
-  if type(theme_id) == "number" and theme_id >= 0 and theme_id <= 300 then
+  if type(theme_id) == "number" and theme_id >= THEME_MIN and theme_id <= THEME_MAX then
     M.options.theme = theme_id
     return true
   end
@@ -102,9 +94,7 @@ end
 -- 設定 layout
 M.set_layout = function(layout)
   -- 確保 options 已初始化
-  if vim.tbl_isempty(M.options) then
-    M.options = vim.tbl_deep_extend("force", {}, M.defaults)
-  end
+  ensure_options_initialized()
 
   M.options.layout = layout
 end
